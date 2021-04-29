@@ -1,0 +1,23 @@
+name: "Workflow for action"
+on:
+  pull_request_target:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        name: "Step 0"
+      - name: "Step 1"
+        id: get_file_changes
+        uses: trilom/file-changes-action@v1.2.3
+      - id: echoPayload
+        run: |
+          payload=$(cat $GITHUB_EVENT_PATH)
+          echo "::set-output name=payload::$payload"
+      - uses: rymane/group-of-3-action/action@setup
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          payload: ${{ steps.echoPayload.outputs.payload}}
+          filesAdded: ${{ steps.get_file_changes.outputs.files_added}}
+          filesChanged: ${{ steps.get_file_changes.outputs.files_modified }}
+
